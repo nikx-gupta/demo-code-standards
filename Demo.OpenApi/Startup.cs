@@ -34,7 +34,28 @@ namespace Demo.OpenApi
                 .AddFluentValidation();
 
             // Register Validator Objects
-            services.AddTransient<IValidator<AddAdGroupRequest>,  AddAdGroupRequestValidator>();
+            services.AddTransient<IValidator<AddAdGroupRequest>, AddAdGroupRequestValidator>();
+
+            // Don't Create Open Policies If there is no requirement
+            services.AddCors((opt) =>
+            {
+                opt.AddPolicy("Open", (pol)=>
+                {
+                    pol.AllowAnyMethod();
+                    pol.AllowAnyHeader();
+                    pol.AllowAnyOrigin();
+                });
+            });
+           
+            // Create Restrictive instead. Leverage This POST policy on POST methods
+            services.AddCors((opt) =>
+            {
+                opt.AddPolicy("POST", (pol) =>
+                {
+                    pol.WithMethods("POST");
+                    pol.WithOrigins("www.google.com,www.customdomain.com");
+                });
+            });
 
             services.AddSwaggerGen(c =>
             {
